@@ -4,10 +4,10 @@
 ROBLOX_PACKAGES=("com.roblox.clienu" "com.roblox.clienv")
 
 # Specify the URL you want to open
-URL="https://www.roblox.com/games/17017769292/Anime-Defenders-RAIDS"
+ROBLOX_URL="roblox://placeId=YOUR_PRIVATE_SERVER_ID"
 
 # Discord webhook URL
-DISCORD_WEBHOOK_URL="YOUR_DISCORD_WEBHOOK_URL"
+DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/924514192373997618/jkWKnWWN3mnS4zNcU7IhbZjS5QRgJSj3Yf0KoxFX6kKaRhaKGRL6hEXfJpurY2_wNbfR"
 
 # ANSI color escape codes
 RED='\033[0;31m'
@@ -38,10 +38,12 @@ while true; do
         MESSAGE="${TIMESTAMP}: All Roblox instances are running."
         echo -e "${GREEN}${MESSAGE}${NC}"
     else
-        MESSAGE="${TIMESTAMP}: Not all Roblox instances are running. Opening the link in the Roblox app."
+        MESSAGE="${TIMESTAMP}: Not all Roblox instances are running. Opening the link in all Roblox apps."
         echo -e "${RED}${MESSAGE}${NC}"
-        # Open Roblox app using the first package name in the list
-        am start -a android.intent.action.VIEW -d "$URL" "${ROBLOX_PACKAGES[0]}"
+        # Open Roblox app for each package name in the list
+        for PACKAGE in "${ROBLOX_PACKAGES[@]}"; do
+            am start -a android.intent.action.VIEW -d "$ROBLOX_URL" "$PACKAGE"
+        done
     fi
 
     # Send the message to Discord webhook
