@@ -1,34 +1,52 @@
 #!/bin/bash
 
-# Name of the game process to monitor
-GAME_PROCESS="com.roblox.client"
+# Array of package names for Roblox
+ROBLOX_PACKAGES=("com.roblox.clienu" "com.roblox.clienv")
 
-# URL to access when the game process is not found
-TARGET_URL="https://www.roblox.com/games/17017769292/Anime-Defenders-RAIDS?gameSearchSessionInfo=ea560cc2-896c-4a57-ba53-b12d4c4085a3&isAd=false&nativeAdData=&numberOfLoadedTiles=40&page=searchPage&placeId=17017769292&position=0&universeId=5836869368"
+# Specify the URL you want to open
+URL="https://www.roblox.com/games/17017769292/Anime-Defenders-RAIDS"
 
-# Function to check the process and act
-check_process() {
-    if pgrep -x "$GAME_PROCESS" > /dev/null; then
-        echo "Game process is running..."
-    else
-        echo "Game process is not running. Accessing the URL..."
-        # Access the URL using curl
-        curl -X GET "$TARGET_URL"
-        # Optionally, break the loop if you only want to run it once when the process is gone
-        break
-    fi
+# Discord webhook URL
+DISCORD_WEBHOOK_URL="YOUR_DISCORD_WEBHOOK_URL"
+
+# ANSI color escape codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+send_to_discord() {
+    MESSAGE="$1"
+    curl -H "Content-Type: application/json" -d "{\"content\":\"$MESSAGE\"}" "$DISCORD_WEBHOOK_URL"
 }
 
-# Ensure we're running as root
-if [ "$EUID" -ne 0 ]; then
-    echo "Switching to root..."
-    tsu -c "$0"
-    exit
-fi
-
-# Infinite loop to keep checking the process
 while true; do
-    check_process
-    # Sleep for a while before checking again
-    sleep 60
+    # Get the current timestamp
+    TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
+
+    # Count of running Roblox processes
+    RUNNING_COUNT=0
+
+    # Check if any of the Roblox processes are running
+    for PACKAGE in "${ROBLOX_PACKAGES[@]}"; do
+        PROCESS_COUNT=$(pgrep -c -f "$PACKAGE")
+        if [ "$PROCESS_COUNT" -gt 0 ]; then
+            ((RUNNING_COUNT++))
+        fi
+    done
+
+    if [ "$RUNNING_COUNT" -eq "${#ROBLOX_PACKAGES[@]}" ]; then
+        MESSAGE="${TIMESTAMP}: All Roblox instances are running."
+        echo -e "${GREEN}${MESSAGE}${NC}"
+    else
+        MESSAGE="${TIMESTAMP}: Not all Roblox instances are running. Opening the link in the Roblox app."
+        echo -e "${RED}${MESSAGE}${NC}"
+        # Open Roblox app using the first package name in the list
+        am start -a android.intent.action.VIEW -d "$URL" "${ROBLOX_PACKAGES[0]}"
+    fi
+
+    # Send the message to Discord webhook
+    send_to_discord "$MESSAGE"
+
+    # Wait for 20 seconds before checking again
+    sleep 20
 done
