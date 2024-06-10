@@ -4,10 +4,10 @@
 ROBLOX_PACKAGES=("com.roblox.clienu" "com.roblox.clienv")
 
 # Specify the URL you want to open
-ROBLOX_URL="roblox://placeId=YOUR_PRIVATE_SERVER_ID"
+ROBLOX_URL="https://www.roblox.com/share?code=5f31d242dde86a4ba899b5b744f5f5c6&type=Server"
 
 # Discord webhook URL
-DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/924514192373997618/jkWKnWWN3mnS4zNcU7IhbZjS5QRgJSj3Yf0KoxFX6kKaRhaKGRL6hEXfJpurY2_wNbfR"
+DISCORD_WEBHOOK_URL="YOUR_DISCORD_WEBHOOK_URL"
 
 # ANSI color escape codes
 RED='\033[0;31m'
@@ -42,7 +42,7 @@ while true; do
         echo -e "${RED}${MESSAGE}${NC}"
         # Open Roblox app for each package name in the list
         for PACKAGE in "${ROBLOX_PACKAGES[@]}"; do
-            am start -a android.intent.action.VIEW -d "$ROBLOX_URL" "$PACKAGE"
+            am start -a android.intent.action.VIEW -d "$ROBLOX_URL" -n "$PACKAGE/.MainActivity"
         done
     fi
 
